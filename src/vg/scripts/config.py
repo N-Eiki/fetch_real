@@ -15,7 +15,7 @@ class config:
     x_offset = 0.3
     y_offset = -0.05
     heightmap_resolution = 0.5 / 224
-    workspace_limits = np.asarray([[0.2+x_offset, 0.7+x_offset], [-0.25 + y_offset, 0.25 + y_offset], [0., 1.5]])
+    workspace_limits = np.asarray([[0.2+x_offset, 0.7+x_offset], [-0.25 + y_offset, 0.25 + y_offset], [4., 1.5]])
     # workspace_limits = np.asarray([[0.6, 1.1], [-0.25, 0.25], [0., 2.]])
 
     

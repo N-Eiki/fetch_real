@@ -74,12 +74,12 @@ class Robot:
         
         self.bridge = CvBridge()
         self.config = config
-        self.group.stop()
-        rospy.sleep(2)
+        # self.group.stop()
+        # rospy.sleep(2)
         self.go_home_position()
         self.open_gripper()
-        self.group.stop()
-        rospy.sleep(2)
+        # self.group.stop()
+        # rospy.sleep(2)
     
     def grasp(self, best_pix_ind, valid_depth_heightmap):
         rot = 4
@@ -90,28 +90,31 @@ class Robot:
         height = valid_depth_heightmap[best_pix_y][best_pix_x]
         self.open_gripper()
         quaternion = [-0.5, 0.5, 0.5, 0.5]
+        quaternion = [-0.499219533259, 0.500511143052, 0.500218485425, 0.500049917642]
         rospy.loginfo(height)
-        self.go_target_position(best_pix_x, best_pix_y, 0.8, quaternion)
+        self.go_target_position(best_pix_x, best_pix_y, height + self.config.workspace_limits[2][0] + 0.05, quaternion)
+
         # [TODO]
         # implement rotation into quaternion
         jvs = self.group.get_current_joint_values()
         # jvs[-1] -= np.deg2rad(22.5*rot)
         jvs[-1] -= np.deg2rad(22.5*rot)
         rotate = False
-        while not rotate:
-            rotate = self.move_manager(pose_requested=None,joints_array_requested=jvs,movement_type_requested="JOINTS")
+        # while not rotate:
+        # rotate = self.move_manager(pose_requested=None,joints_array_requested=jvs,movement_type_requested="JOINTS")
 
         rotates = {
+            0:[-0.499219533259, 0.500511143052, 0.500218485425, 0.500049917642],
             4:[-0.707131561789, 0.000240113539969,  0.707081467691, 0.000833495785438]
         }
 
         quaternion = rotates[rot]
-        self.go_target_position(best_pix_x, best_pix_y, 0.7, quaternion)
+        self.go_target_position(best_pix_x, best_pix_y, height + self.config.workspace_limits[2][0] - 0.05, quaternion)
         
         rospy.loginfo('close_gripper')
         self.close_gripper()
         rospy.sleep(1)
-        self.go_target_position(best_pix_x, best_pix_y, 0.8,quaternion)
+        self.go_target_position(best_pix_x, best_pix_y, height + self.config.workspace_limits[2][0] + 0.05,quaternion)
         
         # self.open_gripper()
         success = self.check_grasp()
@@ -132,8 +135,8 @@ class Robot:
         ps.position = Vector3(*primitive_position)
         ps.orientation = Quaternion(*quaternion)
         result = False
-        while not result:
-            result = self.move_manager(pose_requested=ps, joints_array_requested=None, movement_type_requested="TCP")
+        # while not result:
+        result = self.move_manager(pose_requested=ps, joints_array_requested=None, movement_type_requested="TCP")
 
 
     def get_camera_data(self):
@@ -157,10 +160,10 @@ class Robot:
     def go_home_position(self):
         init = [1.57, -0.9, 0, 0.9, 0.0, 1.57, 0.0]
         done = False
-        while not done:
-            done = self.move_manager(pose_requested=None,
-                joints_array_requested=init,
-                movement_type_requested="JOINTS")
+        # while not done:
+        done = self.move_manager(pose_requested=None,
+            joints_array_requested=init,
+            movement_type_requested="JOINTS")
         self.move_manager(pose_requested=[],
                                 joints_array_requested=[0.6, 0.0, 0.],
                                 movement_type_requested="HEAD")
@@ -172,8 +175,9 @@ class Robot:
         # self.gripper_group.stop()
         result = False
         while not result:
-            self.gripper_group.set_joint_value_target([0.05, 0.05])
-            result = self.gripper_group.go()
+            self.gripper_group.set_joint_value_target([0.045, 0.045])
+            result = self.execute_trajectory(self.gripper_group)
+            # result = self.gripper_group.go()
     
     def close_gripper(self):
         rospy.loginfo('CLOSE')
@@ -181,7 +185,8 @@ class Robot:
         result = False
         while not result:
             self.gripper_group.set_joint_value_target([0.0, 0.0])
-            result = self.gripper_group.go(wait=True)
+            result = self.execute_trajectory(self.gripper_group)
+            # result = self.gripper_group.go(wait=True)
         rospy.sleep(2)
 
     def move_manager(self, pose_requested, joints_array_requested, movement_type_requested):
@@ -222,7 +227,7 @@ class Robot:
         else:
             pass
         self.group.set_pose_target(pose)
-        result = self.execute_trajectory()
+        result = self.execute_trajectory(self.group)
         return result
 
     def joint_traj(self, positions_array):
@@ -240,7 +245,7 @@ class Robot:
         self.group_variable_values[5] = positions_array[5]
         self.group_variable_values[6] = positions_array[6]
         self.group.set_joint_value_target(self.group_variable_values)
-        result = self.execute_trajectory()
+        result = self.execute_trajectory(self.group)
 
         return result
     def move_torso(self, torso_height):
@@ -267,29 +272,14 @@ class Robot:
 
         return result
 
-    def execute_trajectory(self):
-        self.plan = self.group.plan()
-        if self.plan.joint_trajectory.header.frame_id=='':
+    def execute_trajectory(self, group):
+        plan = group.plan()
+        if plan.joint_trajectory.header.frame_id=='':
             return False
-        result = self.group.go()
+        # result = self.group.go()
+        result = group.execute(plan, wait=True)
         # # self.group.stop()
-        # # rospy.sleep(2)
-        # for attempt in range(3):
-        #     try:
-        #         self.plan = self.group.plan()
-        #         if self.plan.joint_trajectory.header.frame_id=='':
-        #             return False
-        #         result = self.group.go()
-        #         break
-        #     except moveit_commander.MoveItCommanderException as e:
-        #         rospy.loginfo('======================================')
-        #         rospy.loginfo(e)
-        #         rospy.loginfo('======================================')
-
-        #         # if "ABORTED" in str(e):
-        #         #     print('aborted retry')
-        #         # else:
-        #         #     print(e)
+       
 
 
         return result
