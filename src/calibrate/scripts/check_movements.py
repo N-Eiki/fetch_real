@@ -132,11 +132,11 @@ def check_movements():
     ax.set_xticks([-1.0, -.5, 0.0, .5, 1.5])
     ax.set_yticks([-1.0, -.5, 0.0, .5, 1.0])
     start = 0
-    if os.path.exists('/home/rl-user/repos/nagata/catkin_ws/src/calibrate/data/reachability_count.npy'):
-        start = np.load('/home/rl-user/repos/nagata/catkin_ws/src/calibrate/data/reachability_count.npy').item()
+    # if os.path.exists('/home/rl-user/repos/nagata/catkin_ws/src/calibrate/data/reachability_count.npy'):
+    #     start = np.load('/home/rl-user/repos/nagata/catkin_ws/src/calibrate/data/reachability_count.npy').item()
     print('start from ', start)
     for calib_pt_idx in tqdm(range(start, num_calib_grid_pts)):
-
+        rospy.loginfo(robot.group.get_goal_orientation_tolerance())
         tool_position = calib_grid_pts[calib_pt_idx,:]
         text = "go to " + str(tool_position)
         tqdm.write(text)
@@ -145,13 +145,14 @@ def check_movements():
         ps.orientation = Quaternion(*[-0.5, 0.5, 0.5, 0.5])
         robot.move_manager(pose_requested=ps, joints_array_requested=None, movement_type_requested="TCP")
         time.sleep(1)
-        if check_error(ps.position,  robot.group.get_current_pose().pose.position)<0.01:
+        if check_error(ps.position,  robot.group.get_current_pose().pose.position)<0.015:
             rospy.loginfo('succeed')
             success_x.append(ps.position.x)
             success_y.append(ps.position.y)
             success_z.append(ps.position.z)
         else:
             rospy.loginfo('failed')
+            rospy.loginfo(check_error(ps.position,  robot.group.get_current_pose().pose.position))
             robot.go_home_position()
             fail_x.append(ps.position.x)
             fail_y.append(ps.position.y)

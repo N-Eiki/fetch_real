@@ -128,11 +128,11 @@ def do_calibrate():
     observed_pts = []
     observed_pix = []
     done_count = 0
-    if os.path.exists(os.path.join(robot.config.root, "calibrate/data/done_count.npy")):
-        measured_pts = np.load(os.path.join(robot.config.root, "calibrate/data/measured_pts.npy")).tolist()
-        observed_pts =  np.load(os.path.join(robot.config.root, "calibrate/data/observed_pts.npy")).tolist()
-        observed_pix = np.load(os.path.join(robot.config.root, "calibrate/data/observed_pix.npy")).tolist()
-        done_count = np.load(os.path.join(robot.config.root, "calibrate/data/done_count.npy")).item()
+    # if os.path.exists(os.path.join(robot.config.root, "calibrate/data/done_count.npy")):
+    #     measured_pts = np.load(os.path.join(robot.config.root, "calibrate/data/measured_pts.npy")).tolist()
+    #     observed_pts =  np.load(os.path.join(robot.config.root, "calibrate/data/observed_pts.npy")).tolist()
+    #     observed_pix = np.load(os.path.join(robot.config.root, "calibrate/data/observed_pix.npy")).tolist()
+    #     done_count = np.load(os.path.join(robot.config.root, "calibrate/data/done_count.npy")).item()
     def check_error(target, curr):
         return np.sqrt((target.x-curr.x)**2 + (target.y - curr.y)**2 + (target.z-target.z)**2)
     robot.close_gripper()
