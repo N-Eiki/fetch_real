@@ -1,0 +1,8 @@
+prefix=/home/rl-user/repos/nagata/catkin_ws/install
+
+Name: fetch_test
+Description: Description of fetch_test
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

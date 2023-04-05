@@ -1,0 +1,8 @@
+prefix=/home/rl-user/repos/nagata/catkin_ws/devel
+
+Name: fetch_images
+Description: Description of fetch_images
+Version: 0.0.0
+Cflags: -I/home/rl-user/repos/nagata/catkin_ws/devel/include
+Libs: -L${prefix}/lib 
+Requires: 

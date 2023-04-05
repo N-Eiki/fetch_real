@@ -1,0 +1,2 @@
+calibrate:fetch_images:fetch_test
+-DCATKIN_DEVEL_PREFIX=/home/rl-user/repos/nagata/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/rl-user/repos/nagata/catkin_ws/install -G Unix Makefiles

@@ -1,0 +1,8 @@
+prefix=/home/rl-user/repos/nagata/catkin_ws/install
+
+Name: calibrate
+Description: Description of calibrate
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
