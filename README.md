@@ -1,7 +1,9 @@
 # Map作成
  ```
  $ mv path/to/map_dir
- $  rosrun map_server map_server -f map.yaml
- #rosrun rviz rviz
+ $ roslaunch fetch_navigation build_map.launch
+ $ rosrun rviz rviz # check map, add Map topic and Robot Model 
+ $ rosrun map_server map_serv
+ 
 
  ```
